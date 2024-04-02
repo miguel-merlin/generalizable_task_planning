@@ -54,5 +54,10 @@ def execute(lg):
             return True
     return False
         
-        
+def main():
+    lg = set()
+    if execute(lg):
+        print("Goal conditions achieved")
+        return
+    print("Goal conditions not achieved")
     
