@@ -1,5 +1,9 @@
+from skills import Skill
+
 MAX_REPLANS = 10
 MAX_RETRIALS = 10
+NUM_SKILLS = 2
+NUM_BLOCKS = 3
 
 def plan(o, lg):
     """
@@ -55,6 +59,22 @@ def execute(lg):
     return False
         
 def main():
+    # Initialize skills
+    reach_on_table = Skill("ReachOnTable", 
+                            {"IsOnTable": True},
+                            {"IsOnTable": True},
+                            None,
+                            None)
+    reach_on_tower = Skill("ReachOnTower",
+                            {"IsOnTower": True},
+                            {"IsOnTower": True},
+                            None,
+                            None)
+    stack = Skill("Stack",
+                    {"IsOnTable": True, "IsOnTower": True},
+                    {"IsOnTower": True},
+                    None,
+                    None)
     lg = set()
     if execute(lg):
         print("Goal conditions achieved")
