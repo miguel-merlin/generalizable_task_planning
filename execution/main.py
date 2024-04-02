@@ -4,7 +4,7 @@ MAX_RETRIALS = 10
 def plan(o, lg):
     """
     Get sequence of skills to achieve goal conditions (lg) given
-    and observation (0)
+    and observation
     """
     return []
 
