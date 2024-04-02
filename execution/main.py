@@ -1,15 +1,17 @@
 from skills import Skill
+from model import Model
 
 MAX_REPLANS = 10
 MAX_RETRIALS = 10
 NUM_SKILLS = 2
 NUM_BLOCKS = 3
 
-def plan(o, lg):
+def plan(o, lg, symbolic_planner):
     """
     Get sequence of skills to achieve goal conditions (lg) given
     and observation
     """
+    initial_conditions = symbolic_planner.get_scene_predicates(o, NUM_BLOCKS)
     return []
 
 def observe():
@@ -43,7 +45,7 @@ def execute_plan(o, lg, p):
         i += 1
     return False
 
-def execute(lg):
+def execute(lg, symbolic_planner):
     """
     Execution algorithm
     - lg: Set of goal conditions (predicates)
@@ -52,7 +54,7 @@ def execute(lg):
     while replan_counter < MAX_REPLANS:
         # TODO: Obtain point cloud
         o = None
-        P = plan(o, lg)
+        P = plan(o, lg, symbolic_planner)
         replan_counter += 1
         if execute_plan(o, lg, P):
             return True
@@ -76,7 +78,8 @@ def main():
                     None,
                     None)
     lg = set()
-    if execute(lg):
+    model = Model("SymbolicPlanner", [reach_on_table, reach_on_tower, stack])
+    if execute(lg, model):
         print("Goal conditions achieved")
         return
     print("Goal conditions not achieved")

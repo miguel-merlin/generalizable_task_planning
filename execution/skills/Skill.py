@@ -14,3 +14,6 @@ class Skill():
 
     def __str__(self):
         return self.name
+
+    def execute(self, o):
+        return self.visuomotor_policy(o)
