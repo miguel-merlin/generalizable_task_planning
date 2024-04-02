@@ -1,9 +1,9 @@
 class Skill():
     def __init__(self,
-                name, 
-                logical_preconditions, 
-                expected_logical_effects, 
-                visuomotor_policy, 
+                name,
+                logical_preconditions,
+                expected_logical_effects,
+                visuomotor_policy,
                 termination_policy
                 ):
         self.name = name
