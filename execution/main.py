@@ -28,8 +28,6 @@ def execute_plan(o, lg, p, symbolic_planner):
     i = 0
     while i < len(p):
         s = p[i]
-        # TODO: Obtain point cloud
-        o = None
         while not s.check_preconditions(o, symbolic_planner, NUM_BLOCKS): # Procondition check
             if i == 0:
                 return False
@@ -54,30 +52,12 @@ def execute(lg, symbolic_planner):
     replan_counter = 0
     while replan_counter < MAX_REPLANS:
         # TODO: Obtain point cloud
-        o = None
+        o = observe()
         P = plan(o, lg, symbolic_planner)
         replan_counter += 1
         if execute_plan(o, lg, P, symbolic_planner):
             return True
     return False
-        
-def reach_on_table(o):
-    """
-    Execute skill ReachOnTable
-    """
-    return        
-
-def reach_on_tower(o):
-    """
-    Execute skill ReachOnTower
-    """
-    return
-
-def stack(o):
-    """
-    Execute skill Stack
-    """
-    return
 
 def main():
     lg = set()

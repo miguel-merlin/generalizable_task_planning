@@ -26,4 +26,25 @@ class Skill():
         
         # AND logical operation between scene predicates and logical preconditions
         return scene_predicates & logical_preconditions == logical_preconditions
+    
+    def apply_logical_effects(self):
+        """
+        Apply logical effects to current state
+        """
+        return self.logical_effects
+    
+    def execute(self, o, object_1, object_2):
+        """
+        Execute skill given observation
+        """
+        if (object_1 is not None) and (object_2 is not None):
+            self.visuomotor_policy.execute(o, object_1, object_2)
+            return
+        
+        if (object_1 is not None) and (object_2 is None):
+           self.visuomotor_policy.execute(o, object_1)
+           return
+    
+        raise ValueError("Invalid object arguments for skill execution")
+        
         
