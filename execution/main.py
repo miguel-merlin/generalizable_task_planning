@@ -1,3 +1,5 @@
+from SymbolicPlanner import SymbolicPlanner
+
 MAX_REPLANS = 10
 MAX_RETRIALS = 10
 NUM_SKILLS = 2
@@ -7,7 +9,7 @@ def plan(o, lg, symbolic_planner):
     """
     Get sequence of skills to achieve goal conditions (lg) given
     and observation
-    """
+    """ 
     initial_conditions = symbolic_planner.get_scene_predicates(o, NUM_BLOCKS)
     return []
 
@@ -57,26 +59,28 @@ def execute(lg, symbolic_planner):
             return True
     return False
         
+def reach_on_table(o):
+    """
+    Execute skill ReachOnTable
+    """
+    return        
+
+def reach_on_tower(o):
+    """
+    Execute skill ReachOnTower
+    """
+    return
+
+def stack(o):
+    """
+    Execute skill Stack
+    """
+    return
+
 def main():
-    # Initialize skills
-    reach_on_table = Skill("ReachOnTable", 
-                            {"IsOnTable": True},
-                            {"IsOnTable": True},
-                            None,
-                            None)
-    reach_on_tower = Skill("ReachOnTower",
-                            {"IsOnTower": True},
-                            {"IsOnTower": True},
-                            None,
-                            None)
-    stack = Skill("Stack",
-                    {"IsOnTable": True, "IsOnTower": True},
-                    {"IsOnTower": True},
-                    None,
-                    None)
     lg = set()
-    model = Model("SymbolicPlanner", [reach_on_table, reach_on_tower, stack])
-    if execute(lg, model):
+    symbolic_planner = SymbolicPlanner()
+    if execute(lg, symbolic_planner):
         print("Goal conditions achieved")
         return
     print("Goal conditions not achieved")
