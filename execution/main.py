@@ -19,7 +19,7 @@ def observe():
     """
     return None
 
-def execute_plan(o, lg, p):
+def execute_plan(o, lg, p, symbolic_planner):
     """
     Execute sequence of skills given by plan (p) to achieve goal conditions (lg) given
     an observation (o)
@@ -28,7 +28,9 @@ def execute_plan(o, lg, p):
     i = 0
     while i < len(p):
         s = p[i]
-        while not s.check_preconditions(0): # Procondition check
+        # TODO: Obtain point cloud
+        o = None
+        while not s.check_preconditions(o, symbolic_planner, NUM_BLOCKS): # Procondition check
             if i == 0:
                 return False
             s = p[i - 1]
@@ -55,7 +57,7 @@ def execute(lg, symbolic_planner):
         o = None
         P = plan(o, lg, symbolic_planner)
         replan_counter += 1
-        if execute_plan(o, lg, P):
+        if execute_plan(o, lg, P, symbolic_planner):
             return True
     return False
         
