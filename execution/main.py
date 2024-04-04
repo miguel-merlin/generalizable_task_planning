@@ -1,6 +1,3 @@
-from skills import Skill
-from model import Model
-
 MAX_REPLANS = 10
 MAX_RETRIALS = 10
 NUM_SKILLS = 2
