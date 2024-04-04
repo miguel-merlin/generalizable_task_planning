@@ -62,6 +62,7 @@ def execute(lg, symbolic_planner):
 def main():
     lg = set()
     symbolic_planner = SymbolicPlanner()
+    
     if execute(lg, symbolic_planner):
         print("Goal conditions achieved")
         return

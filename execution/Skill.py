@@ -24,7 +24,6 @@ class Skill():
         logical_preconditions = [int(p) for p in self.logical_preconditions]
         logical_preconditions = int(''.join(map(str, logical_preconditions)), 2)
         
-        # AND logical operation between scene predicates and logical preconditions
         return scene_predicates & logical_preconditions == logical_preconditions
     
     def apply_logical_effects(self):
