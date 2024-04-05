@@ -40,7 +40,7 @@ def execute_plan(o, lg, p, symbolic_planner):
         s.execute(o)
         new_o = observe()
         if s.check_termination_policy(new_o):
-            return True
+            return True 
         i += 1
     return False
 
