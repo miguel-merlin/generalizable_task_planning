@@ -52,6 +52,11 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
     - current_predicates: List of predicates
     - goal_predicates: Set of goal conditions (predicates)
     """ 
+    if DEBUG:
+        plan = ["reach-on-table(red)", "stack(red,blue)"]
+        for p in plan:
+            print(p)
+        return plan
     # Convert lists to sets for set operations
     current_predicates_set = set(current_predicates)
     goal_predicates_set = set(goal_predicates)

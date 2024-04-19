@@ -1,4 +1,4 @@
-import Predicate
+from Predicate import Predicate
 class Skill:
     def __init__(self, name, logical_preconditions, logical_effects, visuomotor_policy, termination_condition, num_args):
         self.name = name
