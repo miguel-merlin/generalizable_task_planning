@@ -27,7 +27,27 @@ def generate_predicates(num_blocks):
 
 
 def search(predicates, goal_predicates, skills: List[Skill], observed_states):
-    return []
+    current_state = set(predicates)
+    plan = []
+
+    goal_state = set(goal_predicates)
+
+    while not goal_state.issubset(current_state):
+        applicable_skills = []
+
+        for skill in skills:
+            if any(effect in goal_state for effect in skill.logical_effects):
+                applicable_skills.append(skill)
+
+        if not applicable_skills:
+            print("No applicable skills found; planning failed.")
+            return []
+
+        chosen_skill = applicable_skills[0]
+        plan.append(chosen_skill)
+        current_state.update(chosen_skill.logical_effects)
+
+    return plan
 
 def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) -> List[Skill]:
     """
