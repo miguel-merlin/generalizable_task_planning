@@ -1,2 +1,5 @@
 # Ignore Jupyter Notebook Checkpoints
 .ipynb_checkpoints/
+
+# Ignore virtualenv
+venv/
