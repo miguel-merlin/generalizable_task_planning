@@ -55,7 +55,8 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
         logical_preconditions=["on-table"],
         logical_effects=["in-hand"],
         visuomotor_policy=None,
-        termination_condition=None
+        termination_condition=None,
+        num_args=1
     )
     skills.append(reach_on_table)
     
@@ -64,7 +65,8 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
         logical_preconditions=["on-top"],
         logical_effects=["in-hand"],
         visuomotor_policy=None,
-        termination_condition=None
+        termination_condition=None,
+        num_args=1
     )
     skills.append(reach_on_tower)
     
@@ -73,7 +75,8 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
         logical_preconditions=["in-hand"],
         logical_effects=["on-top"],
         visuomotor_policy=None,
-        termination_condition=None
+        termination_condition=None,
+        num_args=2
     )
     skills.append(stack)
     print("Planning...")
