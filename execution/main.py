@@ -56,11 +56,15 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
     - current_predicates: List of predicates
     - goal_predicates: Set of goal conditions (predicates)
     """ 
-    # Check if goal predicates are already satisfied        
-    if (goal_predicates.issubset(current_predicates)):
+    # Convert lists to sets for set operations
+    current_predicates_set = set(current_predicates)
+    goal_predicates_set = set(goal_predicates)
+
+    # Check if goal predicates are already satisfied
+    if goal_predicates_set.issubset(current_predicates_set):
         print("Goal predicates already satisfied")
         exit(0)
-        
+    
     # Define skills
     skills = []
     reach_on_table = Skill(
@@ -93,7 +97,7 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
     )
     skills.append(stack)
     print("Planning...")
-    search(current_predicates, goal_predicates, skills, set())
+    search(current_predicates_set, goal_predicates_set, skills, set())
     return []
 
 def observe(predicates):
@@ -160,6 +164,6 @@ if __name__ == "__main__":
     
     goal_predicates = []
     if DEBUG:
-        goal_predicates.append(Predicate("on-top", [colors[0], colors[1]], False))
+        goal_predicates.append(Predicate("on-top", [colors[0], colors[1]], True))
     # Execute algorithm
     execute(goal_predicates, args.num_blocks, args.max_replans, args.max_retrials)

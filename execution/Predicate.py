@@ -12,3 +12,10 @@ class Predicate:
     
     def __eq__(self, other) -> bool:
         return self.predicate_string == other.predicate_string and self.arguments == other.arguments
+
+    def __hash__(self):
+        return hash((self.predicate_string, tuple(self.arguments), self.condition))
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)): return NotImplemented
+        return (self.predicate_string, self.arguments, self.condition) == (other.predicate_string, other.arguments, other.condition)
