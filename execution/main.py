@@ -57,14 +57,7 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
     - goal_predicates: Set of goal conditions (predicates)
     """ 
     # Check if goal predicates are already satisfied        
-    # TODO: Naive approach, think of better solution
-    counter = 0
-    for p in goal_predicates:
-        for cp in current_predicates:
-            if p == cp and cp.condition == p.condition:
-                counter += 1
-    
-    if counter == len(goal_predicates):
+    if (goal_predicates.issubset(current_predicates)):
         print("Goal predicates already satisfied")
         exit(0)
         
