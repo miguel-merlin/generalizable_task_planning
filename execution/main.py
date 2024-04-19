@@ -54,9 +54,10 @@ def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) 
     """ 
     if DEBUG:
         plan = ["reach-on-table(red)", "stack(red,blue)"]
+        print("Plan:")
         for p in plan:
-            print(p)
-        return plan
+            print(f"\t{p}")
+        exit(0)
     # Convert lists to sets for set operations
     current_predicates_set = set(current_predicates)
     goal_predicates_set = set(goal_predicates)
@@ -139,6 +140,12 @@ def execute(goal_predicates, num_blocks, max_replans, max_retrials)->int:
     - goal_predicates: Set of goal conditions (predicates)
     """
     predicates = generate_predicates(num_blocks)
+    print("Initial predicates:")
+    for p in predicates:
+        print(f"\t{p}")
+    print("Goal predicates:")
+    for p in goal_predicates:
+        print(f"\t{p}")
     replan_counter = 0
     while replan_counter < max_replans:
         current_predicates = observe(predicates)
