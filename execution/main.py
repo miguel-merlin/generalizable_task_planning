@@ -1,9 +1,28 @@
 from SymbolicPlanner import SymbolicPlanner
+from Predicate import Predicate
+import argparse
 
-MAX_REPLANS = 10
-MAX_RETRIALS = 10
-NUM_SKILLS = 2
-NUM_BLOCKS = 3
+
+def generate_predicates(num_blocks):
+    """
+    Create a list of predicates given a list of blocks
+    """
+    colors = ["red", "blue", "green", "yellow", "purple", "orange"]
+    predicates = []
+    
+    # For each block determine predicates
+    for i in range(num_blocks):
+        on_table_predicate = Predicate(f"on-table", [colors[i]], False)
+        in_hand_predicate = Predicate(f"in-hand", [colors[i]], False)
+        predicates.append(on_table_predicate)
+        predicates.append(in_hand_predicate)
+        for j in range(num_blocks):
+            if i != j:
+                on_top_predicate = Predicate(f"on-top", [colors[i], colors[j]], False)
+                predicates.append(on_top_predicate)
+    
+    return predicates
+
 
 def plan(o, lg, symbolic_planner):
     """
@@ -19,7 +38,7 @@ def observe():
     """
     return None
 
-def execute_plan(o, lg, p, symbolic_planner):
+def execute_plan(o, lg, p, symbolic_planner, max_retrials):
     """
     Execute sequence of skills given by plan (p) to achieve goal conditions (lg) given
     an observation (o)
@@ -33,7 +52,7 @@ def execute_plan(o, lg, p, symbolic_planner):
                 return False
             s = p[i - 1]
         retrial_counter[s] += 1 
-        if retrial_counter[s] > MAX_RETRIALS:
+        if retrial_counter[s] > max_retrials:
             return False
         
         # Execute skill given obersevation
@@ -44,27 +63,29 @@ def execute_plan(o, lg, p, symbolic_planner):
         i += 1
     return False
 
-def execute(lg, symbolic_planner):
+def execute(lg, symbolic_planner, num_blocks, max_replans, max_retrials)->int:
     """
     Execution algorithm
     - lg: Set of goal conditions (predicates)
     """
+    predicates = generate_predicates(num_blocks)
     replan_counter = 0
-    while replan_counter < MAX_REPLANS:
+    while replan_counter < max_replans:
         # TODO: Obtain point cloud
         o = observe()
         P = plan(o, lg, symbolic_planner)
         replan_counter += 1
-        if execute_plan(o, lg, P, symbolic_planner):
-            return True
-    return False
+        if execute_plan(o, lg, P, symbolic_planner, max_retrials):
+            print("Goal conditions achieved")
+            exit(0)
+    print("Max replans reached, goal conditions not achieved")
+    return exit(1)
 
-def main():
-    lg = set()
-    symbolic_planner = SymbolicPlanner()
-    
-    if execute(lg, symbolic_planner):
-        print("Goal conditions achieved")
-        return
-    print("Goal conditions not achieved")
-    
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generizable task planning")
+    parser.add_argument("--num_blocks", type=int, default=3, help="Number of blocks")
+    parser.add_argument("--max_replans", type=int, default=10, help="Max replans")
+    parser.add_argument("--max_retrials", type=int, default=5, help="Max retrials")
+    args = parser.parse_args()
+    execute([], SymbolicPlanner(), args.num_blocks, args.max_replans, args.max_retrials)
