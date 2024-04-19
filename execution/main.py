@@ -1,13 +1,15 @@
-from SymbolicPlanner import SymbolicPlanner
 from Predicate import Predicate
+from Skill import Skill
 import argparse
+from typing import List
 
+DEBUG = False
+colors = ["red", "blue", "green", "yellow", "purple", "orange"]
 
 def generate_predicates(num_blocks):
     """
     Create a list of predicates given a list of blocks
     """
-    colors = ["red", "blue", "green", "yellow", "purple", "orange"]
     predicates = []
     
     # For each block determine predicates
@@ -24,21 +26,68 @@ def generate_predicates(num_blocks):
     return predicates
 
 
-def plan(o, lg, symbolic_planner):
-    """
-    Get sequence of skills to achieve goal conditions (lg) given
-    and observation
-    """ 
-    initial_conditions = symbolic_planner.get_scene_predicates(o, NUM_BLOCKS)
+def search(predicates, goal_predicates, skills: List[Skill], observed_states):
     return []
 
-def observe():
+def plan(current_predicates: List[Predicate], goal_predicates: List[Predicate]) -> List[Skill]:
+    """
+    Get sequence of skills to achieve goal conditions given
+    and observation
+    - current_predicates: List of predicates
+    - goal_predicates: Set of goal conditions (predicates)
+    """ 
+    # Check if goal predicates are already satisfied        
+    # TODO: Naive approach, think of better solution
+    counter = 0
+    for p in goal_predicates:
+        for cp in current_predicates:
+            if p == cp and cp.condition == p.condition:
+                counter += 1
+    
+    if counter == len(goal_predicates):
+        print("Goal predicates already satisfied")
+        exit(0)
+        
+    # Define skills
+    skills = []
+    reach_on_table = Skill(
+        name="reach-on-table",
+        logical_preconditions=["on-table"],
+        logical_effects=["in-hand"],
+        visuomotor_policy=None,
+        termination_condition=None
+    )
+    skills.append(reach_on_table)
+    
+    reach_on_tower = Skill(
+        name="reach-on-tower",
+        logical_preconditions=["on-top"],
+        logical_effects=["in-hand"],
+        visuomotor_policy=None,
+        termination_condition=None
+    )
+    skills.append(reach_on_tower)
+    
+    stack = Skill(
+        name="stack",
+        logical_preconditions=["in-hand"],
+        logical_effects=["on-top"],
+        visuomotor_policy=None,
+        termination_condition=None
+    )
+    skills.append(stack)
+    print("Planning...")
+    search(current_predicates, goal_predicates, skills, set())
+    return []
+
+def observe(predicates):
     """
     Get current point cloud observation
     """
-    return None
+    # TODO: Symbolic planner should return list of predicates given point cloud
+    return predicates
 
-def execute_plan(o, lg, p, symbolic_planner, max_retrials):
+def execute_plan(o, lg, p, max_retrials):
     """
     Execute sequence of skills given by plan (p) to achieve goal conditions (lg) given
     an observation (o)
@@ -47,7 +96,7 @@ def execute_plan(o, lg, p, symbolic_planner, max_retrials):
     i = 0
     while i < len(p):
         s = p[i]
-        while not s.check_preconditions(o, symbolic_planner, NUM_BLOCKS): # Procondition check
+        while not s.check_preconditions(o, NUM_BLOCKS): # Procondition check
             if i == 0:
                 return False
             s = p[i - 1]
@@ -63,29 +112,38 @@ def execute_plan(o, lg, p, symbolic_planner, max_retrials):
         i += 1
     return False
 
-def execute(lg, symbolic_planner, num_blocks, max_replans, max_retrials)->int:
+def execute(goal_predicates, num_blocks, max_replans, max_retrials)->int:
     """
     Execution algorithm
-    - lg: Set of goal conditions (predicates)
+    - goal_predicates: Set of goal conditions (predicates)
     """
     predicates = generate_predicates(num_blocks)
     replan_counter = 0
     while replan_counter < max_replans:
-        # TODO: Obtain point cloud
-        o = observe()
-        P = plan(o, lg, symbolic_planner)
+        current_predicates = observe(predicates)
+        P = plan(current_predicates, goal_predicates)
         replan_counter += 1
-        if execute_plan(o, lg, P, symbolic_planner, max_retrials):
+        if execute_plan(current_predicates, goal_predicates, P, max_retrials):
             print("Goal conditions achieved")
             exit(0)
     print("Max replans reached, goal conditions not achieved")
     return exit(1)
 
 
+
 if __name__ == "__main__":
+    # Parse arguments
     parser = argparse.ArgumentParser(description="Generizable task planning")
     parser.add_argument("--num_blocks", type=int, default=3, help="Number of blocks")
     parser.add_argument("--max_replans", type=int, default=10, help="Max replans")
     parser.add_argument("--max_retrials", type=int, default=5, help="Max retrials")
+    parser.add_argument("--debug", action="store_true", help="Debug mode")
     args = parser.parse_args()
-    execute([], SymbolicPlanner(), args.num_blocks, args.max_replans, args.max_retrials)
+    DEBUG = args.debug
+    NUM_BLOCKS = args.num_blocks
+    
+    goal_predicates = []
+    if DEBUG:
+        goal_predicates.append(Predicate("on-top", [colors[0], colors[1]], False))
+    # Execute algorithm
+    execute(goal_predicates, args.num_blocks, args.max_replans, args.max_retrials)

@@ -1,3 +1,3 @@
 class Model:
-    def __init__(self, model) -> None:
-        self.model = model
+    def __init__(self, path="") -> None:
+        self.path=path
