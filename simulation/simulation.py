@@ -82,7 +82,8 @@ def control_robot_state(kinova_uid, object_uid, state):
             target_pos = 0.6 * MAX_FINGER_POS if i % 2 == 0 else 0.5 * MAX_FINGER_POS
             p.setJointMotorControl2(kinova_uid, joint, p.POSITION_CONTROL, target_pos, force=200)
 
-def simulate():
+def simulate(num_sims):
+    NUM_SIMS = num_sims
     for _ in range(NUM_SIMS):
         kinova_uid, _ = setup_environment()
         initialize_robot_position(kinova_uid)
