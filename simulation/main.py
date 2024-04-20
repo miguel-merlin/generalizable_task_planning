@@ -2,7 +2,7 @@ from simulation.simulation import simulate
 import argparse
 
 def main(num_sims=10):
-    simulate(10)
+    simulate(num_sims)
     
 
 if __name__ == "__main__":
