@@ -24,7 +24,7 @@ def setup_environment():
     p.setGravity(0, 0, -9.81)
     p.setAdditionalSearchPath(urdf_root_path)
     table_uid = p.loadURDF(os.path.join(urdf_root_path, "table/table.urdf"), basePosition=[0.5, 0, -0.65])
-    kinova_uid = p.loadURDF("./j2s6s300.urdf", useFixedBase=True)
+    kinova_uid = p.loadURDF("./robot/j2s6s300.urdf", useFixedBase=True)
     return kinova_uid, table_uid
 
 def initialize_robot_position(kinova_uid):
@@ -77,7 +77,8 @@ def control_robot_state(kinova_uid, object_uid, state):
         target_position = p.getBasePositionAndOrientation(object_uid)[0]
         joint_poses = p.calculateInverseKinematics(kinova_uid, 8, target_position)
         for i, pos in enumerate(joint_poses):
-            p.setJointMotorControl2(kinova_uid, ARM_JOINTS[i], p.POSITION_CONTROL, pos)
+            if i < len(ARM_JOINTS):
+                p.setJointMotorControl2(kinova_uid, ARM_JOINTS[i], p.POSITION_CONTROL, pos)
     elif state == 2:
         for i, joint in enumerate(FINGER_JOINTS):
             target_pos = 0.6 * MAX_FINGER_POS if i % 2 == 0 else 0.5 * MAX_FINGER_POS
