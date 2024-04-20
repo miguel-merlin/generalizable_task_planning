@@ -22,8 +22,9 @@ def setup_environment():
     urdf_root_path = pybullet_data.getDataPath()
     p.connect(p.GUI)
     p.setGravity(0, 0, -9.81)
-    kinova_uid = p.loadURDF('./robot/j2s6s300.urdf', useFixedBase=True)
+    p.setAdditionalSearchPath(urdf_root_path)
     table_uid = p.loadURDF(os.path.join(urdf_root_path, "table/table.urdf"), basePosition=[0.5, 0, -0.65])
+    kinova_uid = p.loadURDF("./j2s6s300.urdf", useFixedBase=True)
     return kinova_uid, table_uid
 
 def initialize_robot_position(kinova_uid):
