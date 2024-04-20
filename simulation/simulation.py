@@ -16,19 +16,28 @@ CONTROL_DT = 1. / 240.
 MAX_FINGER_POS = 1.5
 
 def setup_environment():
+    """
+    Set up the PyBullet environment by loading the Kinova robot and a table.
+    """
     urdf_root_path = pybullet_data.getDataPath()
     p.connect(p.GUI)
     p.setGravity(0, 0, -9.81)
-    kinova_uid = p.loadURDF('./j2s6s300.urdf', useFixedBase=True)
+    kinova_uid = p.loadURDF('./robot/j2s6s300.urdf', useFixedBase=True)
     table_uid = p.loadURDF(os.path.join(urdf_root_path, "table/table.urdf"), basePosition=[0.5, 0, -0.65])
     return kinova_uid, table_uid
 
 def initialize_robot_position(kinova_uid):
+    """
+    Initialize the robot to the home position.
+    """
     home_state_dict = dict(zip(ARM_JOINTS, HOME_POS))
     for joint, pos in home_state_dict.items():
         p.resetJointState(kinova_uid, joint, pos)
 
 def create_object():
+    """
+    Create a block object in the environment.
+    """
     block_shape = p.createCollisionShape(p.GEOM_BOX, halfExtents=[0.03, 0.03, 0.03])
     block_body = p.createMultiBody(baseMass=1.0, baseCollisionShapeIndex=block_shape)
     x_min, x_max = -0.2, 1.0
@@ -41,6 +50,9 @@ def create_object():
     return block_body
 
 def run_simulation(kinova_uid, object_uid):
+    """
+    Simulation loop that runs for a fixed number of states.
+    """
     js_list = []
     current_state = 0
     state_time = 0.
@@ -57,6 +69,9 @@ def run_simulation(kinova_uid, object_uid):
         control_robot_state(kinova_uid, object_uid, current_state)
 
 def control_robot_state(kinova_uid, object_uid, state):
+    """
+    Robot control logic for each state.
+    """
     if state == 1:
         target_position = p.getBasePositionAndOrientation(object_uid)[0]
         joint_poses = p.calculateInverseKinematics(kinova_uid, 8, target_position)
