@@ -53,7 +53,7 @@ def capture_point_cloud(camera_position, camera_orientation, object_uid):
     width, height = 640, 480
     view_matrix = p.computeViewMatrixFromYawPitchRoll(camera_position, distance=1, yaw=0, pitch=-10, roll=0, upAxisIndex=2)
     proj_matrix = p.computeProjectionMatrixFOV(fov=60, aspect=float(width)/height, nearVal=0.1, farVal=100)
-    _, _, rgbImg, depthImg, segImg = p.getCameraImage(width, height, viewMatrix=view_matrix, projectionMatrix=proj_matrix)
+    _, _, _, depthImg, segImg = p.getCameraImage(width, height, viewMatrix=view_matrix, projectionMatrix=proj_matrix)
     
     farVal = 100
     nearVal = 0.1

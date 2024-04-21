@@ -3,7 +3,7 @@ import pybullet_data
 import os
 import math
 import numpy as np
-from utils import current_joint_positions
+from utils import current_joint_positions, capture_point_cloud
 import h5py
 
 # Configuration
@@ -61,17 +61,25 @@ def run_simulation(kinova_uid, object_uid):
     js_list = []
     current_state = 0
     state_time = 0.
-    while True:
-        p.stepSimulation()
-        js_list.append(current_joint_positions(kinova_uid, ARM_JOINTS))
-        state_time += CONTROL_DT
-        if state_time > STATE_DURATIONS[current_state]:
-            current_state += 1
-            if current_state >= len(STATE_DURATIONS):
-                SIM_RESULTS.append(js_list)
-                break
-            state_time = 0
-        control_robot_state(kinova_uid, object_uid, current_state)
+    with h5py.File("sim_results.h5", "w") as hdf_file:
+        while True:
+            p.stepSimulation()
+            if current_state == 0:  # Capture point cloud at the beginning
+                    pc, mask = capture_point_cloud([1, 1, 1], [0, 0, 0])  # Adjust camera position/orientation
+                    hdf_file.create_dataset('point_cloud', data=pc)
+                    hdf_file.create_dataset('mask', data=mask)
+                    
+            js_list.append(current_joint_positions(kinova_uid, ARM_JOINTS))
+            hdf_file.create_dataset('joint_states', data=js_list)
+            
+            state_time += CONTROL_DT
+            if state_time > STATE_DURATIONS[current_state]:
+                current_state += 1
+                if current_state >= len(STATE_DURATIONS):
+                    SIM_RESULTS.append(js_list)
+                    break
+                state_time = 0
+            control_robot_state(kinova_uid, object_uid, current_state)
 
 def control_robot_state(kinova_uid, object_uid, state):
     """
