@@ -64,8 +64,8 @@ def run_simulation(kinova_uid, object_uid):
     with h5py.File("sim_results.h5", "w") as hdf_file:
         while True:
             p.stepSimulation()
-            if current_state == 0:  # Capture point cloud at the beginning
-                    pc, mask = capture_point_cloud([1, 1, 1], [0, 0, 0])  # Adjust camera position/orientation
+            if current_state == 0:
+                    pc, mask = capture_point_cloud([1, 1, 1], [0, 0, 0], object_uid)
                     hdf_file.create_dataset('point_cloud', data=pc)
                     hdf_file.create_dataset('mask', data=mask)
                     

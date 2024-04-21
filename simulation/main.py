@@ -1,8 +1,8 @@
 from simulation import simulate
 import argparse
 
-def main(num_sims=10):
-    simulate(num_sims)
+def main(num_sims=10, with_gui=False):
+    simulate(num_sims, with_gui)
     
 
 if __name__ == "__main__":
