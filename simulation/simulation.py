@@ -4,6 +4,7 @@ import os
 import math
 import numpy as np
 from utils import current_joint_positions
+import h5py
 
 # Configuration
 NUM_SIMS = 10
@@ -15,12 +16,15 @@ STATE_DURATIONS = [0.25, 0.5, 0.25]
 CONTROL_DT = 1. / 240.
 MAX_FINGER_POS = 1.5
 
-def setup_environment():
+def setup_environment(with_gui):
     """
     Set up the PyBullet environment by loading the Kinova robot and a table.
     """
     urdf_root_path = pybullet_data.getDataPath()
-    p.connect(p.GUI)
+    if with_gui:
+        p.connect(p.GUI)
+    else:
+        p.connect(p.DIRECT)
     p.setGravity(0, 0, -9.81)
     p.setAdditionalSearchPath(urdf_root_path)
     table_uid = p.loadURDF(os.path.join(urdf_root_path, "table/table.urdf"), basePosition=[0.5, 0, -0.65])
@@ -84,10 +88,10 @@ def control_robot_state(kinova_uid, object_uid, state):
             target_pos = 0.6 * MAX_FINGER_POS if i % 2 == 0 else 0.5 * MAX_FINGER_POS
             p.setJointMotorControl2(kinova_uid, joint, p.POSITION_CONTROL, target_pos, force=200)
 
-def simulate(num_sims):
+def simulate(num_sims, with_gui=False):
     NUM_SIMS = num_sims
     for _ in range(NUM_SIMS):
-        kinova_uid, _ = setup_environment()
+        kinova_uid, _ = setup_environment(with_gui)
         initialize_robot_position(kinova_uid)
         object_uid = create_object()
         run_simulation(kinova_uid, object_uid)
