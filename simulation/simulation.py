@@ -3,7 +3,7 @@ import pybullet_data
 import os
 import math
 import numpy as np
-from utils import current_joint_positions, capture_point_cloud
+from utils import current_joint_positions, get_point_cloud
 import h5py
 
 # Configuration
@@ -21,15 +21,17 @@ def setup_environment(with_gui):
     Set up the PyBullet environment by loading the Kinova robot and a table.
     """
     urdf_root_path = pybullet_data.getDataPath()
+    client_id = -1
     if with_gui:
-        p.connect(p.GUI)
+        client_id = p.connect(p.GUI)
     else:
-        p.connect(p.DIRECT)
+        client_id = p.connect(p.DIRECT)
     p.setGravity(0, 0, -9.81)
     p.setAdditionalSearchPath(urdf_root_path)
+    p.resetDebugVisualizerCamera(3, 90, -30, [0.0, -0.0, -0.0])
     table_uid = p.loadURDF(os.path.join(urdf_root_path, "table/table.urdf"), basePosition=[0.5, 0, -0.65])
     kinova_uid = p.loadURDF("./robot/j2s6s300.urdf", useFixedBase=True)
-    return kinova_uid, table_uid
+    return kinova_uid, table_uid, client_id
 
 def initialize_robot_position(kinova_uid):
     """
@@ -54,7 +56,7 @@ def create_object():
     p.resetBasePositionAndOrientation(block_body, initial_position, initial_orientation)
     return block_body
 
-def run_simulation(kinova_uid, object_uid):
+def run_simulation(kinova_uid, object_uid, client_id):
     """
     Simulation loop that runs for a fixed number of states.
     """
@@ -65,7 +67,7 @@ def run_simulation(kinova_uid, object_uid):
         while True:
             p.stepSimulation()
             if current_state == 0:
-                    pc, mask = capture_point_cloud([1, 1, 1], [0, 0, 0], object_uid)
+                    pc, mask = get_point_cloud()
                     hdf_file.create_dataset('point_cloud', data=pc)
                     hdf_file.create_dataset('mask', data=mask)
                     
@@ -99,8 +101,9 @@ def control_robot_state(kinova_uid, object_uid, state):
 def simulate(num_sims, with_gui=False):
     NUM_SIMS = num_sims
     for _ in range(NUM_SIMS):
-        kinova_uid, _ = setup_environment(with_gui)
+        kinova_uid, _, client_id = setup_environment(with_gui)
         initialize_robot_position(kinova_uid)
         object_uid = create_object()
-        run_simulation(kinova_uid, object_uid)
+        run_simulation(kinova_uid, object_uid, client_id)
         p.disconnect()
+

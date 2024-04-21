@@ -1,4 +1,5 @@
 import pybullet as p
+import matplotlib.pyplot as plt
 import numpy as np
 import pdb
 
@@ -22,73 +23,101 @@ def current_joint_positions(robot_id, joint_indices):
     return current_joint_positions
 
 
-def capture_point_cloud(obj_pb_id, width, height, projection_matrix, process_id):
-    far, near = 1.1, 0.1
-    pc = []
-    normals = []
-    camera_angles = [(1, 10), (45, 45), (90, 90), (135, 135), (179, 180)]
-    
-    for phi_deg, theta_deg in camera_angles:
-        camera_distance = np.random.uniform(0.35, 0.55)
-        phi = np.deg2rad(phi_deg)
-        theta = np.deg2rad(theta_deg)
-        obj_center = np.array(p.getBasePositionAndOrientation(obj_pb_id, physicsClientId=process_id)[0])
-        camera_eye_position = obj_center + camera_distance * np.array([np.cos(phi) * np.sin(theta), np.sin(phi) * np.sin(theta), np.cos(theta)])
-        
-        view_matrix = p.computeViewMatrix(cameraEyePosition=list(camera_eye_position),
-                                          cameraTargetPosition=list(obj_center),
-                                          cameraUpVector=[0, 0, 1],
-                                          physicsClientId=process_id)
-        
-        images = p.getCameraImage(width, height, viewMatrix=view_matrix, projectionMatrix=projection_matrix, renderer=p.ER_TINY_RENDERER, physicsClientId=process_id)
-        depth_buffer = np.reshape(images[3], (height, width))
-        depth = far * near / (far - (far - near) * depth_buffer)
-        
-        # Convert depth buffer to point cloud and calculate normals
-        for u in range(height):
-            for v in range(width):
-                if depth[u, v] > 0:  # Simple segmentation based on depth threshold
-                    point_world = project_pixel_to_point(u, v, depth[u, v], projection_matrix, view_matrix)
-                    pc.append(point_world[:3])
-    
-    return pc, normals
+def getDepth(z_n, zNear, zFar):
+    z_n = 2.0 * z_n - 1.0
+    z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear))
+    return z_e
 
-def project_pixel_to_point(u, v, depth, projection_matrix, view_matrix):
-    width, height = 640, 480
-    
-    projection_matrix_np = np.reshape(np.array(projection_matrix), (4, 4)).T
-    view_matrix_np = np.reshape(np.array(view_matrix), (4, 4)).T
-    inv_projection_matrix = np.linalg.inv(projection_matrix_np)
-    inv_view_matrix = np.linalg.inv(view_matrix_np)
-
-    # Convert pixel coordinates (u, v) to normalized device coordinates (NDC)
-    x = (2.0 * v / width - 1.0)
-    y = (2.0 * u / height - 1.0)
-    z = 2.0 * depth - 1.0
-    point_ndc = np.array([x, y, z, 1.0])
-    point_camera = np.dot(inv_projection_matrix, point_ndc)
-    point_camera /= point_camera[3]
-    point_world = np.dot(inv_view_matrix, point_camera)
-    point_world /= point_world[3]
-
-    # Return only the x, y, z components
-    return point_world[:3]  
-                   
-                   
-def get_point_cloud(object_uid, process_id):
+def get_point_cloud():
     """
-    Capture a point cloud from the specified camera position and orientation.
+    Generate a point cloud from the depth image.
     """
-    width, height = 640, 480
-    f_x, f_y = 543.820, 546.691
-    c_x, c_y = 314.424, 237.466
-    skew = 0.283204
-    far, near = 1.1, 0.1
+    cam_pos = [0, 0, 2]
+    cam_target = [0, 0, 0]
+    cam_up = [0, 1, 0]
+    view_matrix = p.computeViewMatrix(
+        cameraEyePosition = cam_pos,
+        cameraTargetPosition = cam_target,
+        cameraUpVector=cam_up
+    )
     
-    opengl_projection_matrix = [f_x/width, 0, 0, 0,
-                            skew/width, f_y/height, 0, 0,
-                            2*(c_x+0.5)/width-1, 2*(c_y+0.5)/height-1, -(far+near)/(far-near), -1,
-                            0, 0, -2*far*near/(far-near), 0]
+    # Define projection matrix
+    near_val = 0.01
+    far_val = 5.1
+    projection_matrix = p.computeProjectionMatrixFOV(
+        fov=30.0,
+        aspect=1.0,
+        nearVal=near_val,
+        farVal=far_val
+    )
     
-    pc, normals = capture_point_cloud(object_uid, width, height, opengl_projection_matrix, process_id)
+    # Get an image
+    imgW, imgH, rgb_img, depth_img, segImg = p.getCameraImage(
+        width=128, 
+        height=128,
+        viewMatrix=view_matrix,
+        projectionMatrix=projection_matrix,
+        renderer=p.ER_BULLET_HARDWARE_OPENGL
+    )
+    
+    pdb.set_trace()
+    
+    print("rgbBuffer.shape=", rgb_img.shape)
+    print("depthBuffer.shape=", depth_img.shape)
+    plt.imshow(depth_img)
+    
+    stepX = 1
+    stepY = 1
+    realDepthImg = depth_img.copy()
+    for w in range(0, imgW, stepX):
+        for h in range(0, imgH, stepY):
+            realDepthImg[w][h] = getDepth(depth_img[w][h],near_val,far_val)
+            
+    plt.imshow(realDepthImg)
+    
+    # Convert depth image to point cloud
+    stepX = 1
+    stepY = 1        
+    pointCloud = np.empty([np.int32(imgH/stepY), np.int32(imgW/stepX), 4])
+
+    projectionMatrix = np.asarray(projectionMatrix).reshape([4,4],order='F')
+
+    viewMatrix = np.asarray(viewMatrix).reshape([4,4],order='F')
+
+    tran_pix_world = np.linalg.inv(np.matmul(projectionMatrix, viewMatrix))
+
+    for h in range(0, imgH, stepY):
+        for w in range(0, imgW, stepX):
+                x = (2*w - imgW)/imgW
+                y = -(2*h - imgH)/imgH
+                z = 2*depth_img[h,w] - 1
+                pixPos = np.asarray([x, y, z, 1])
+                position = np.matmul(tran_pix_world, pixPos)
+                pointCloud[np.int32(h/stepY), np.int32(w/stepX), :] = position / position[3]
+                
+    print(pointCloud.shape)
+    
+    # Creating 3D figure
+    xs = []
+    ys = []
+    zs = []
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax = plt.axes(projection='3d')
+
+    for h in range(0, imgH, stepY):
+        for w in range(0, imgW, stepX):
+            [x,y,z,_] = pointCloud[h,w]
+            xs.append(x)
+            ys.append(y)
+            zs.append(z)
+            
+
+    ax.scatter(xs, ys, zs, c=zs, marker='.')
+    ax.view_init(75, 45)
+    plt.draw()
+
+    
     
