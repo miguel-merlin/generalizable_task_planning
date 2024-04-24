@@ -28,6 +28,7 @@ def getDepth(z_n, zNear, zFar):
     z_e = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear))
     return z_e
 
+
 def get_point_cloud():
     """
     Generate a point cloud from the depth image.
