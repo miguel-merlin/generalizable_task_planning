@@ -6,3 +6,17 @@ venv/
 
 # Ignore python cache
 __pycache__/
+
+# Ignore latex generated files
+*.aux
+*.log
+*.pdf
+*.out
+*.toc
+*.synctex.gz
+*.bbl
+*.bcf
+main.run.xml
+*.blg
+*.fdb_latexmk
+*.fls
