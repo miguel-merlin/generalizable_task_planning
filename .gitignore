@@ -10,7 +10,6 @@ __pycache__/
 # Ignore latex generated files
 *.aux
 *.log
-*.pdf
 *.out
 *.toc
 *.synctex.gz
@@ -20,3 +19,9 @@ main.run.xml
 *.blg
 *.fdb_latexmk
 *.fls
+*.aux
+*.bbl-SAVE-ERROR
+main.aux
+
+# DS
+.DS_Store
