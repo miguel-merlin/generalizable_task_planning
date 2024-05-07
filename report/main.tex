@@ -126,7 +126,7 @@ of the search algoritm is to take a pair of start and goal state and generate a 
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/bfs_predicates.png}
 	\caption{Caption describing your figure.}
-	\label{fig:yourlabel}
+	\label{fig:bfspredicates}
   \end{figure}
   
 
@@ -255,15 +255,47 @@ continues until the goal is satisfied. The following algorithm describes the tas
 	\centering
 	\includegraphics[width=0.5\textwidth]{figures/arch_diagram.png}
 	\caption{Overview of model architecture.}
-	\label{fig:yourlabel}
+	\label{fig:archdiagram}
   \end{figure}
   
+An example of the execution of the algorithm is shown in the following figure.
+\par
+Initial predicates:
+\begin{align*}
+    \text{on-table}(red) & : \text{False} \\
+    \text{in-hand}(red) & : \text{False} \\
+    \text{on-top}(red, blue) & : \text{False} \\
+    \text{on-top}(red, green) & : \text{False} \\
+    \text{on-table}(blue) & : \text{False} \\
+    \text{in-hand}(blue) & : \text{False} \\
+    \text{on-top}(blue, red) & : \text{False} \\
+    \text{on-top}(blue, green) & : \text{False} \\
+    \text{on-table}(green) & : \text{False} \\
+    \text{in-hand}(green) & : \text{False} \\
+    \text{on-top}(green, red) & : \text{False} \\
+    \text{on-top}(green, blue) & : \text{False}
+\end{align*}
+
+Goal predicates:
+\begin{align*}
+    \text{on-top}(red, blue) & : \text{True}
+\end{align*}
+
+Plan:
+\begin{enumerate}
+    \item reach-on-table(red)
+    \item stack(red, blue)
+\end{enumerate}
+
+Github repository: \url{https://github.com/miguel-merlin/generalizable_task_planning}\
+
+
 
 %----------------------------------------------------------------------------------------
 %	 REFERENCES
 %----------------------------------------------------------------------------------------
 
-\printbibliography % Output the bibliography
+% \printbibliography % Output the bibliography
 
 %----------------------------------------------------------------------------------------
 
